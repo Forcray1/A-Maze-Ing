@@ -18,7 +18,7 @@ def _is_inside(x: int, y: int, width: int, height: int) -> bool:
 
 def _build_42_mask(width: int, height: int) -> set[tuple[int, int]]:
     """
-    Build a centered 42 mask with size 7x5.
+    Build a centered 42 logo.
     """
     pattern = [
         "1000111",
@@ -41,7 +41,7 @@ def _build_42_mask(width: int, height: int) -> set[tuple[int, int]]:
 
 class MazeGenerator:
     """
-    Standalone maze generator based on iterative DFS.
+    Maze generator based on iterative DFS (Depth First Search).
     """
 
     def __init__(
