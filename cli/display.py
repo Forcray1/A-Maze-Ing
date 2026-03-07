@@ -2,7 +2,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from typing import Optional
-from maze_maker import BLOCK, E, N, S, W
+from mazegen.maze_maker import BLOCK, E, N, S, W
 
 
 WALL_TILE = "██"

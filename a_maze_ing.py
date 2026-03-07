@@ -2,9 +2,9 @@ import secrets
 import sys
 import time
 
-from check_value import check_value
-from maze_maker import MazeGenerator
-from print_maze import print_maze, render_maze_ascii, show_maze_in_terminal
+from core.check_value import check_value
+from mazegen.maze_maker import MazeGenerator
+from cli.display import print_maze, render_maze_ascii, show_maze_in_terminal
 
 
 def main() -> None:
