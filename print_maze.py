@@ -8,8 +8,8 @@ from maze_maker import BLOCK, E, N, S, W
 WALL_TILE = "██"
 OPEN_TILE = "  "
 BLOCK_TILE = "▓▓"
-START_TILE = "SS"
-END_TILE = "EE"
+START_TILE = "\033[92m██\033[0m"
+END_TILE = "\033[91m██\033[0m"
 
 
 def render_maze_ascii(maze: dict, grid: list[list[int]]) -> str:
