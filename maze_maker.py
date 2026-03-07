@@ -39,6 +39,137 @@ def _build_42_mask(width: int, height: int) -> set[tuple[int, int]]:
     return cells
 
 
+class MazeGenerator:
+    """
+    Standalone maze generator based on iterative DFS.
+    """
+
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        entry: tuple[int, int],
+        exit_point: tuple[int, int],
+        perfect: bool = True,
+        print_42: bool = False,
+        seed: Optional[int] = None,
+        progress_callback: Optional[Callable[[list[list[int]]], None]] = None,
+    ) -> None:
+        self.width = int(width)
+        self.height = int(height)
+        self.entry = entry
+        self.exit_point = exit_point
+        self.perfect = perfect
+        self.print_42 = print_42
+        self.randomizer = random.Random(seed)
+        self.progress_callback = progress_callback
+
+    @classmethod
+    def from_config(
+        cls,
+        maze: dict,
+        perfect: bool,
+        print_42: bool,
+        seed: Optional[int] = None,
+        progress_callback: Optional[Callable[[list[list[int]]], None]] = None,
+    ) -> "MazeGenerator":
+        """
+        Build a MazeGenerator from the existing project configuration map.
+        """
+        width = int(maze["WIDTH"])
+        height = int(maze["HEIGHT"])
+        start_x, start_y = map(int, maze["ENTRY"].replace(" ", "").split(","))
+        end_x, end_y = map(int, maze["EXIT"].replace(" ", "").split(","))
+        return cls(
+            width=width,
+            height=height,
+            entry=(start_x, start_y),
+            exit_point=(end_x, end_y),
+            perfect=perfect,
+            print_42=print_42,
+            seed=seed,
+            progress_callback=progress_callback,
+        )
+
+    def _normalize_point(self, point: tuple[int, int]) -> tuple[int, int]:
+        x, y = point
+        if x == self.width:
+            x = self.width - 1
+        if y == self.height:
+            y = self.height - 1
+        return x, y
+
+    def generate(self) -> list[list[int]]:
+        """
+        Generate and return a maze grid.
+        """
+        grid = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        visited = [
+            [False for _ in range(self.width)]
+            for _ in range(self.height)
+        ]
+
+        start_x, start_y = self._normalize_point(self.entry)
+        end_x, end_y = self._normalize_point(self.exit_point)
+
+        if not _is_inside(start_x, start_y, self.width, self.height):
+            start_x, start_y = 0, 0
+
+        blocked_cells: set[tuple[int, int]] = set()
+        if self.print_42 and self.width >= 7 and self.height >= 5:
+            blocked_cells = _build_42_mask(self.width, self.height)
+            blocked_cells.discard((start_x, start_y))
+            blocked_cells.discard((end_x, end_y))
+            for block_x, block_y in blocked_cells:
+                visited[block_y][block_x] = True
+                grid[block_y][block_x] = BLOCK
+
+        stack: list[tuple[int, int]] = [(start_x, start_y)]
+        visited[start_y][start_x] = True
+
+        while stack:
+            x, y = stack[-1]
+            neighbors = []
+            for dx, dy, direction in Direction:
+                nx, ny = x + dx, y + dy
+                if (
+                    _is_inside(nx, ny, self.width, self.height)
+                    and not visited[ny][nx]
+                ):
+                    neighbors.append((nx, ny, direction))
+
+            if neighbors:
+                nx, ny, direction = self.randomizer.choice(neighbors)
+                grid[y][x] |= direction
+                grid[ny][nx] |= OPPOSITE[direction]
+                visited[ny][nx] = True
+                stack.append((nx, ny))
+                if self.progress_callback is not None:
+                    self.progress_callback(grid)
+            else:
+                stack.pop()
+
+        if not self.perfect:
+            extra_openings = max(1, (self.width * self.height) // 12)
+            for _ in range(extra_openings):
+                x = self.randomizer.randrange(self.width)
+                y = self.randomizer.randrange(self.height)
+                if grid[y][x] == BLOCK:
+                    continue
+                dx, dy, direction = self.randomizer.choice(Direction)
+                nx, ny = x + dx, y + dy
+                if (
+                    _is_inside(nx, ny, self.width, self.height)
+                    and grid[ny][nx] != BLOCK
+                ):
+                    grid[y][x] |= direction
+                    grid[ny][nx] |= OPPOSITE[direction]
+                    if self.progress_callback is not None:
+                        self.progress_callback(grid)
+
+        return grid
+
+
 def maze_maker(
     maze: dict,
     perfect: bool,
@@ -47,70 +178,12 @@ def maze_maker(
     progress_callback: Optional[Callable[[list[list[int]]], None]] = None,
 ) -> list[list[int]]:
     """
-    generate the maze with a DFS (Depth First Search) algorithm
+    Backward-compatible wrapper kept for older callers.
     """
-    width = int(maze["WIDTH"])
-    height = int(maze["HEIGHT"])
-    randomizer = random.Random(seed)
-
-    grid = [[0 for _ in range(width)] for _ in range(height)]
-    visited = [[False for _ in range(width)] for _ in range(height)]
-
-    start_x, start_y = map(int, maze["ENTRY"].replace(" ", "").split(","))
-    end_x, end_y = map(int, maze["EXIT"].replace(" ", "").split(","))
-    if start_x == width:
-        start_x = width - 1
-    if start_y == height:
-        start_y = height - 1
-    if not _is_inside(start_x, start_y, width, height):
-        start_x, start_y = 0, 0
-    if not _is_inside(end_x, end_y, width, height):
-        end_x, end_y = width, height
-
-    blocked_cells: set[tuple[int, int]] = set()
-    if print_42 and width >= 7 and height >= 5:
-        blocked_cells = _build_42_mask(width, height)
-        blocked_cells.discard((start_x, start_y))
-        blocked_cells.discard((end_x, end_y))
-        for block_x, block_y in blocked_cells:
-            visited[block_y][block_x] = True
-            grid[block_y][block_x] = BLOCK
-
-    stack: list[tuple[int, int]] = [(start_x, start_y)]
-    visited[start_y][start_x] = True
-
-    while stack:
-        x, y = stack[-1]
-        neighbors = []
-        for dx, dy, direction in Direction:
-            nx, ny = x + dx, y + dy
-            if _is_inside(nx, ny, width, height) and not visited[ny][nx]:
-                neighbors.append((nx, ny, direction))
-
-        if neighbors:
-            nx, ny, direction = randomizer.choice(neighbors)
-            grid[y][x] |= direction
-            grid[ny][nx] |= OPPOSITE[direction]
-            visited[ny][nx] = True
-            stack.append((nx, ny))
-            if progress_callback is not None:
-                progress_callback(grid)
-        else:
-            stack.pop()
-
-    if not perfect:
-        extra_openings = max(1, (width * height) // 12)
-        for _ in range(extra_openings):
-            x = randomizer.randrange(width)
-            y = randomizer.randrange(height)
-            if grid[y][x] == BLOCK:
-                continue
-            dx, dy, direction = randomizer.choice(Direction)
-            nx, ny = x + dx, y + dy
-            if _is_inside(nx, ny, width, height) and grid[ny][nx] != BLOCK:
-                grid[y][x] |= direction
-                grid[ny][nx] |= OPPOSITE[direction]
-                if progress_callback is not None:
-                    progress_callback(grid)
-
-    return grid
+    return MazeGenerator.from_config(
+        maze=maze,
+        perfect=perfect,
+        print_42=print_42,
+        seed=seed,
+        progress_callback=progress_callback,
+    ).generate()

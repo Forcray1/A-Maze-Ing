@@ -3,7 +3,7 @@ import sys
 import time
 
 from check_value import check_value
-from maze_maker import maze_maker
+from maze_maker import MazeGenerator
 from print_maze import print_maze, render_maze_ascii, show_maze_in_terminal
 
 
@@ -78,13 +78,14 @@ def main() -> None:
 
         progress_callback = _progress
 
-    grid = maze_maker(
-        maze,
-        perfect,
-        print_42,
+    generator = MazeGenerator.from_config(
+        maze=maze,
+        perfect=perfect,
+        print_42=print_42,
         seed=seed,
         progress_callback=progress_callback,
     )
+    grid = generator.generate()
     print_maze(maze, grid)
     print(f"SEED used: {seed}")
 
