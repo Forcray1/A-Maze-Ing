@@ -11,38 +11,39 @@ def main() -> None:
     """
     Core logic of the project
     """
-    config = sys.argv[1]
-    maze = {}
+    config_file_path = sys.argv[1]
+    maze: dict[str, int | str] = {}
     seen_keys = set()
     try:
-        with open(config, "r") as config:
-            for line in config:
+        with open(config_file_path, "r") as config_file:
+            for line in config_file:
                 line = line.strip()
-                key, value = line.split("=")
+                key, str_value = line.split("=")
                 if key in seen_keys:
                     print(f"ERROR: {key} is written twice")
                     return
                 seen_keys.add(key)
-                if value.isdigit():
-                    value = int(value)
-                maze[key] = value
+                if str_value.isdigit():
+                    maze[key] = int(str_value)
+                else:
+                    maze[key] = str_value
         if not check_value(maze):
             return
     except FileNotFoundError:
-        print(f"no {config} file found")
+        print(f"no {config_file_path} file found")
         return
-    x_start, y_start = map(int, maze["ENTRY"].split(","))
+    x_start, y_start = map(int, str(maze["ENTRY"]).split(","))
     start = {"x": x_start, "y": y_start}
-    x_end, y_end = map(int, maze["EXIT"].split(","))
+    x_end, y_end = map(int, str(maze["EXIT"]).split(","))
     end = {"x": x_end, "y": y_end}
     try:
         if start["x"] < 0 or end["x"] < 0:
             raise ValueError("The X cords must be positive")
         if start["y"] < 0 or end["y"] < 0:
             raise ValueError("The Y cords must be positive")
-        if start["x"] > maze["WIDTH"] or end["x"] > maze["WIDTH"]:
+        if start["x"] > int(maze["WIDTH"]) or end["x"] > int(maze["WIDTH"]):
             raise ValueError("The X cords must be inside the maze")
-        if start["y"] > maze["HEIGHT"] or end["y"] > maze["HEIGHT"]:
+        if start["y"] > int(maze["HEIGHT"]) or end["y"] > int(maze["HEIGHT"]):
             raise ValueError("The Y cords must be inside the maze")
         if maze["ENTRY"] == maze["EXIT"]:
             raise ValueError("ENTRY and EXIT can't be at the same place")
@@ -57,7 +58,7 @@ def main() -> None:
         show_progress = True
     else:
         show_progress = False
-    if maze["WIDTH"] > 7 and maze["HEIGHT"] > 5:
+    if int(maze["WIDTH"]) > 7 and int(maze["HEIGHT"]) > 5:
         print_42 = True
     else:
         print_42 = False
