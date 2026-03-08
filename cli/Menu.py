@@ -6,9 +6,17 @@ from mazegen.maze_maker import MazeGenerator
 from cli.display import print_maze, render_maze_ascii, show_maze_in_terminal
 
 
-def edit_color(colors: dict[str: str], to_change: str) -> None:
+def edit_color(colors: dict[str: str],
+               to_change: str,
+               maze: dict,
+               grid: list[list[int]],
+               seed: Optional[int] = None
+               ) -> None:
     while True:
-        print("Choose a color:")
+        print("\033[2J\033[H", end="")
+        print_maze(maze, grid, colors)
+        print(f"SEED used: {seed}")
+        print("\nChoose a color:")
         print("1. White (Default)")
         print("2. Blue")
         print("3. Red")
@@ -16,7 +24,7 @@ def edit_color(colors: dict[str: str], to_change: str) -> None:
         print("5. Yellow")
         print("6. Grey")
 
-        color = int(input("\nChoice: "))
+        color = int(input("\nChoice: ").strip())
 
         if color == 1:
             pre = ""
@@ -43,7 +51,8 @@ def edit_color(colors: dict[str: str], to_change: str) -> None:
             suf = "\033[0m"
             break
         else:
-            print(f"{color} isn't a valid option")
+            print(f"\n{color} isn't a valid option")
+            time.sleep(2)
 
     if to_change == "wall":
         colors["WALL_TILE"] = str(pre + "██" + suf)
@@ -65,10 +74,15 @@ def interface(maze: dict,
     Handle the interactive user pannel, and all of the display
     """
     speed = 2
-    progress_callback = None
     color_changed = 0
+    show_solution = False
+    pause_animation_once = False
     while True:
-        if color_changed == 0:
+        print("\033[2J\033[H", end="")
+        progress_callback = None
+        if pause_animation_once:
+            pause_animation_once = False
+        elif color_changed == 0:
             if show_progress:
                 show_maze_in_terminal("", clear_screen=True)
 
@@ -91,7 +105,6 @@ def interface(maze: dict,
         print(f"SEED used: {seed}")
 
         print("\n1. Change maze colors")
-        show_solution = False
         if not show_solution:
             print("2. Show maze solution path")
         else:
@@ -103,42 +116,44 @@ def interface(maze: dict,
             print("4. Deactivate animation")
         print("9. Exit")
 
-        choice = input("\nChoice: ")
+        choice = input("\nChoice: ").strip()
 
         print("\033[2J\033[H", end="")
 
         if choice == "1":
             while True:
+                print("\033[2J\033[H", end="")
                 print_maze(maze, grid, colors)
                 print(f"SEED used: {seed}")
 
-                print("Do you wich to change:")
+                print("\nDo you wich to change:")
                 print("- 1. Wall colors")
                 print("- 2. 42 color")
                 print("- 3. The both of them")
                 print("- 4. Cancel")
 
-                side_choice = input("\nChoice: ")
+                side_choice = input("\nChoice: ").strip()
                 print("\033[2J\033[H", end="")
 
                 print_maze(maze, grid, colors)
                 print(f"SEED used: {seed}")
                 if side_choice == "1":
-                    edit_color(colors, "wall")
+                    edit_color(colors, "wall", maze, grid, seed)
                     color_changed = 1
                     break
                 elif side_choice == "2":
-                    edit_color(colors, "42")
+                    edit_color(colors, "42", maze, grid, seed)
                     color_changed = 1
                     break
                 elif side_choice == "3":
-                    edit_color(colors, "both")
+                    edit_color(colors, "both", maze, grid, seed)
                     color_changed = 1
                     break
                 elif side_choice == "4":
                     break
                 else:
-                    print(f"{side_choice} isn't a valid option")
+                    print(f"\n{side_choice} isn't a valid option")
+                    time.sleep(2)
 
         elif choice == "2":
             if show_solution:
@@ -165,9 +180,22 @@ def interface(maze: dict,
                 print_maze(maze, grid, colors)
                 print(f"SEED used: {seed}")
                 print("\nchoose the speed of the animation (2 by default, for"
-                      " a smooth and fast animation) :")
+                      " a smooth and fast animation, and the lower the "
+                      "faster) :")
+                try:
+                    if speed == "":
+                        raise ValueError
+                    speed = float(input("\nChoice: ").strip())
+                except ValueError:
+                    print(f"{speed}: isn't a valid speed")
                 show_progress = True
-                speed = int(input("\nChoice: "))
 
         elif choice == "9":
             break
+
+        else:
+            pause_animation_once = True
+            print_maze(maze, grid, colors)
+            print(f"SEED used: {seed}")
+            print(f"\n{choice} isn't a valid option")
+            time.sleep(2)
