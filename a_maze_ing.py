@@ -1,10 +1,8 @@
 import secrets
 import sys
-import time
 
 from core.check_value import check_value
-from mazegen.maze_maker import MazeGenerator
-from cli.display import print_maze, render_maze_ascii, show_maze_in_terminal
+from cli.Menu import interface
 
 
 def main() -> None:
@@ -68,27 +66,9 @@ def main() -> None:
     else:
         seed = secrets.randbits(64)
 
-    progress_callback = None
-    if show_progress:
-        show_maze_in_terminal("", clear_screen=True)
+    colors = {"WALL_TILE": "██", "OPEN_TILE": "  ", "BLOCK_TILE": "▓▓"}
 
-        def _progress(frame_grid: list[list[int]]) -> None:
-            frame_ascii = render_maze_ascii(maze, frame_grid)
-            show_maze_in_terminal(frame_ascii)
-            time.sleep(0.02)
-
-        progress_callback = _progress
-
-    generator = MazeGenerator.from_config(
-        maze=maze,
-        perfect=perfect,
-        print_42=print_42,
-        seed=seed,
-        progress_callback=progress_callback,
-    )
-    grid = generator.generate()
-    print_maze(maze, grid)
-    print(f"SEED used: {seed}")
+    interface(maze, show_progress, colors, perfect, print_42, seed)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,2 @@
+animation reste apres changement couleur
+bud affichage couleur (il reste des bout de l'affichage de selection de couleur)

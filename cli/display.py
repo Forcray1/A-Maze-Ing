@@ -4,20 +4,22 @@ from pathlib import Path
 from typing import Optional
 from mazegen.maze_maker import BLOCK, E, N, S, W
 
-
-WALL_TILE = "██"
-OPEN_TILE = "  "
-BLOCK_TILE = "▓▓"
 START_TILE = "\033[92m██\033[0m"
 END_TILE = "\033[91m██\033[0m"
 
 
-def render_maze_ascii(maze: dict, grid: list[list[int]]) -> str:
+def render_maze_ascii(maze: dict,
+                      grid: list[list[int]],
+                      colors: dict[str: str]
+                      ) -> str:
     """
     Create the maze rendered in ascii
     """
     width = int(maze["WIDTH"])
     height = int(maze["HEIGHT"])
+    WALL_TILE = colors["WALL_TILE"]
+    OPEN_TILE = colors["OPEN_TILE"]
+    BLOCK_TILE = colors["BLOCK_TILE"]
 
     lines = [
         [WALL_TILE for _ in range(2 * width + 1)]
@@ -138,12 +140,13 @@ def write_hex_dump_file(maze: dict, dump_text: str) -> None:
 def print_maze(
     maze: dict,
     grid: list[list[int]],
+    colors: dict[str: str],
     seed: Optional[str] = None,
 ) -> None:
     """
     Show final maze in terminal and write hex dump to file.
     """
-    maze_ascii = render_maze_ascii(maze, grid)
+    maze_ascii = render_maze_ascii(maze, grid, colors)
     show_maze_in_terminal(maze_ascii)
     dump_text = maze_hex_dump(maze, grid)
     write_hex_dump_file(maze, dump_text)
