@@ -4,6 +4,16 @@ from typing import Optional
 
 from mazegen.maze_maker import MazeGenerator
 from cli.display import print_maze, render_maze_ascii, show_maze_in_terminal
+from game.play_session import play_maze
+from game.player import Player
+
+
+class YborderError():
+    pass
+
+
+class XborderError():
+    pass
 
 
 def edit_color(colors: dict[str: str],
@@ -114,6 +124,8 @@ def interface(maze: dict,
             print("4. Activate animation")
         else:
             print("4. Deactivate animation")
+        print("5. Change maze dimensions")
+        print("6. Play this maze")
         print("9. Exit")
 
         choice = input("\nChoice: ").strip()
@@ -189,6 +201,133 @@ def interface(maze: dict,
                 except ValueError:
                     print(f"{speed}: isn't a valid speed")
                 show_progress = True
+
+        elif choice == "5":
+            print_maze(maze, grid, colors)
+            print(f"SEED used: {seed}")
+
+            new_width_input = input("\nEnter Width: ").strip()
+            new_height_input = input("\nEnter Height: ").strip()
+
+            try:
+                new_width = int(new_width_input)
+            except ValueError:
+                print(f"{new_width_input} isn't a valid input (enter an int)")
+                time.sleep(2)
+                continue
+
+            try:
+                new_height = int(new_height_input)
+            except ValueError:
+                print(f"{new_height_input} isn't a valid input (enter an int)")
+                time.sleep(2)
+                continue
+
+            x_start, y_start = map(int, str(maze["ENTRY"]).split(","))
+            x_end, y_end = map(int, str(maze["EXIT"]).split(","))
+            x_error = (
+                x_start < 0
+                or x_end < 0
+                or x_start > new_width
+                or x_end > new_width
+            )
+            y_error = (
+                y_start < 0
+                or y_end < 0
+                or y_start > new_height
+                or y_end > new_height
+            )
+
+            while True:
+                edit_points = input(
+                    "Modify ENTRY and EXIT as x,y? (y/n): "
+                ).strip().lower()
+                if edit_points in ("y", "n"):
+                    break
+                print("Please enter y or n")
+                time.sleep(1)
+
+            if edit_points == "y" or x_error or y_error:
+                while True:
+                    if x_error or y_error:
+                        print("\nENTRY/EXIT coordinates are outside the new"
+                              " dimensions.")
+                    entry_input = input("New ENTRY (x,y): ").strip()
+                    exit_input = input("New EXIT (x,y): ").strip()
+                    try:
+                        entry_parts = entry_input.replace(" ", "").split(",")
+                        exit_parts = exit_input.replace(" ", "").split(",")
+                        if len(entry_parts) != 2 or len(exit_parts) != 2:
+                            raise ValueError
+                        x_start, y_start = int(entry_parts[0]), int(
+                            entry_parts[1]
+                        )
+                        x_end, y_end = int(exit_parts[0]), int(exit_parts[1])
+                    except ValueError:
+                        print("Coordinates must be entered as x,y with"
+                              " integers")
+                        time.sleep(2)
+                        continue
+                    if x_start < 0 or x_end < 0 or y_start < 0 or y_end < 0:
+                        print("Coordinates must be positive")
+                        time.sleep(2)
+                        continue
+                    if x_start > new_width or x_end > new_width:
+                        print(f"X coordinates must be inside the new "
+                              f"width ({new_width})")
+                        time.sleep(2)
+                        continue
+                    if y_start > new_height or y_end > new_height:
+                        print(f"Y coordinates must be inside the new "
+                              f"height ({new_height})")
+                        time.sleep(2)
+                        continue
+                    x_error = False
+                    y_error = False
+                    break
+
+            if x_start < 0 or x_end < 0:
+                print("ERROR of configuration: The X cords must be positive")
+                time.sleep(2)
+                continue
+            if y_start < 0 or y_end < 0:
+                print("ERROR of configuration: The Y cords must be positive")
+                time.sleep(2)
+                continue
+            if x_start > new_width or x_end > new_width:
+                print("ERROR of configuration: The X cords must be inside"
+                      " the maze")
+                time.sleep(2)
+                continue
+            if y_start > new_height or y_end > new_height:
+                print("ERROR of configuration: The Y cords must be inside"
+                      " the maze")
+                time.sleep(2)
+                continue
+            if x_start == x_end and y_start == y_end:
+                print("ERROR of configuration: ENTRY and EXIT can't be at"
+                      " the same place")
+                time.sleep(2)
+                continue
+
+            maze["WIDTH"] = new_width
+            maze["HEIGHT"] = new_height
+            maze["ENTRY"] = f"{x_start},{y_start}"
+            maze["EXIT"] = f"{x_end},{y_end}"
+
+            if int(maze["WIDTH"]) > 7 and int(maze["HEIGHT"]) > 5:
+                print_42 = True
+            else:
+                print_42 = False
+
+        elif choice == "6":
+            play_maze(
+                maze,
+                grid,
+                colors,
+                Player,
+                seed,
+            )
 
         elif choice == "9":
             break
