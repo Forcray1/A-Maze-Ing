@@ -137,26 +137,26 @@ def play_maze(
         show_maze_in_terminal(frame + info, clear_screen=True)
 
         if player.won:
-            print("\nYou reached the exit. Press Enter to go back to menu.")
-            print("Statistics:\n")
+            print("\n\033[92mYou reached the exit. Press Enter to go back to menu.\033[0m")
+            print("\033[96mStatistics:\033[0m\n")
             total_cells = width * height
             exploration = (player.steps / total_cells) * 100
             path_lenght = len(solution_path)
-            print(f"You explored {exploration:.2f}% of the maze")
-            print(f"You made it to the exit in {player.steps} move. The "
-                  f"fastest you could do was : {path_lenght}")
+            print(f"\033[93mYou explored {exploration:.2f}% of the maze\033[0m")
+            print(f"\033[95mYou made it to the exit in {player.steps} move. The "
+                  f"fastest you could do was : {path_lenght}\033[0m")
             if perfect_path:
-                print("\nDude get a life... The all path seriously...")
+                print("\n\033[91mDude get a life... The all path seriously...\033[0m")
             elif player.steps == path_lenght:
-                print("\nWell played, that was the fastest way")
+                print("\n\033[92mWell played, that was the fastest way\033[0m")
             elif player.steps < path_lenght:
-                print("\nWell that shouldn't be possible..."
-                      " How did you do it ?")
+                print("\n\033[95mWell that shouldn't be possible..."
+                      " How did you do it ?\033[0m")
             elif player.steps > path_lenght and exploration == 100:
-                print("\nYou explored all of this maze well"
-                      " played (get a life)")
+                print("\n\033[94mYou explored all of this maze well"
+                      " played (get a life)\033[0m")
             else:
-                print("\nNice try but not the best path you could have had")
+                print("\n\033[93mNice try but not the best path you could have had\033[0m")
             input()
             break
 
