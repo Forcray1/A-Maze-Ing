@@ -203,8 +203,11 @@ def interface(maze: dict,
             print(f"SEED used: {seed}")
 
             color_changed = 0
-            seed_input = input("\nchoose a seed (leave empty if none): ")
-            if seed_input != "":
+            seed_input = input("\nchoose a seed (leave empty if none, 'same' "
+                               "for the same seed): ")
+            if seed_input.strip() == "same":
+                seed = seed
+            elif seed_input != "":
                 try:
                     seed = int(seed_input)
                 except ValueError:
