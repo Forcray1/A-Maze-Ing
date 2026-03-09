@@ -12,6 +12,16 @@ def main() -> None:
     if len(sys.argv) != 2:
         print("Usage: python3 a_maze_ing.py [config file]")
         return
+    keys = {
+        "WIDTH",
+        "HEIGHT",
+        "ENTRY",
+        "EXIT",
+        "OUTPUT_FILE",
+        "PERFECT",
+        "SHOW_PROGRESS",
+        "SEED"
+    }
     config_file_path = sys.argv[1]
     maze: dict[str, int | str] = {}
     seen_keys = set()
@@ -19,15 +29,20 @@ def main() -> None:
         with open(config_file_path, "r") as config_file:
             for line in config_file:
                 line = line.strip()
-                key, str_value = line.split("=")
-                if key in seen_keys:
-                    print(f"ERROR: {key} is written twice")
-                    return
-                seen_keys.add(key)
-                if str_value.isdigit():
-                    maze[key] = int(str_value)
+                if line.startswith("#"):
+                    pass
                 else:
-                    maze[key] = str_value
+                    key, str_value = line.split("=")
+                    if key not in keys:
+                        print(f"{key} is not recognised")
+                    if key in seen_keys:
+                        print(f"ERROR: {key} is written twice")
+                        return
+                    seen_keys.add(key)
+                    if str_value.isdigit():
+                        maze[key] = int(str_value)
+                    else:
+                        maze[key] = str_value
         if not check_value(maze):
             return
     except FileNotFoundError:

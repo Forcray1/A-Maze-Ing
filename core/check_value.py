@@ -35,7 +35,8 @@ def check_value(config: dict) -> bool:
     for key in config:
         i += 1
     if i not in (6, 7, 8):
-        print("ERROR: Wrong amount of arguments in config")
+        print("ERROR: Wrong amount of arguments in config, it should contain"
+              " at least: WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE, PERFECT")
         return False
     try:
         if int(config["WIDTH"]):
