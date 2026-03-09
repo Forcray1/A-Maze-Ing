@@ -9,6 +9,9 @@ def main() -> None:
     """
     Core logic of the project
     """
+    if len(sys.argv) != 2:
+        print("Usage: python3 a_maze_ing.py [config file]")
+        return
     config_file_path = sys.argv[1]
     maze: dict[str, int | str] = {}
     seen_keys = set()

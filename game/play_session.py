@@ -137,16 +137,19 @@ def play_maze(
         show_maze_in_terminal(frame + info, clear_screen=True)
 
         if player.won:
-            print("\n\033[92mYou reached the exit. Press Enter to go back to menu.\033[0m")
+            print("\n\033[92mYou reached the exit. "
+                  "Press Enter to go back to menu.\033[0m")
             print("\033[96mStatistics:\033[0m\n")
             total_cells = width * height
             exploration = (player.steps / total_cells) * 100
             path_lenght = len(solution_path)
-            print(f"\033[93mYou explored {exploration:.2f}% of the maze\033[0m")
-            print(f"\033[95mYou made it to the exit in {player.steps} move. The "
-                  f"fastest you could do was : {path_lenght}\033[0m")
+            print(f"\033[93mYou explored {exploration:.2f}% of "
+                  f"the maze\033[0m")
+            print(f"\033[95mYou made it to the exit in {player.steps} move. "
+                  f"The fastest you could do was : {path_lenght}\033[0m")
             if perfect_path:
-                print("\n\033[91mDude get a life... The all path seriously...\033[0m")
+                print("\n\033[91mDude get a life... "
+                      "The all path seriously...\033[0m")
             elif player.steps == path_lenght:
                 print("\n\033[92mWell played, that was the fastest way\033[0m")
             elif player.steps < path_lenght:
@@ -156,7 +159,8 @@ def play_maze(
                 print("\n\033[94mYou explored all of this maze well"
                       " played (get a life)\033[0m")
             else:
-                print("\n\033[93mNice try but not the best path you could have had\033[0m")
+                print("\n\033[93mNice try but not the best path "
+                      "you could have had\033[0m")
             input()
             break
 

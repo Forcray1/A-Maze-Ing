@@ -227,6 +227,8 @@ def interface(maze: dict,
                 try:
                     if speed == "":
                         raise ValueError
+                    if speed < 0:
+                        raise ValueError
                     speed = float(input("\nChoice: ").strip())
                 except ValueError:
                     print(f"{speed}: isn't a valid speed")
@@ -240,16 +242,22 @@ def interface(maze: dict,
             new_height_input = input("\nEnter Height: ").strip()
 
             try:
+                if int(new_width_input) < 1:
+                    raise ValueError
                 new_width = int(new_width_input)
             except ValueError:
-                print(f"{new_width_input} isn't a valid input (enter an int)")
+                print(f"{new_width_input} isn't a valid input "
+                      "(enter a positive int)")
                 time.sleep(2)
                 continue
 
             try:
+                if int(new_height_input) < 1:
+                    raise ValueError
                 new_height = int(new_height_input)
             except ValueError:
-                print(f"{new_height_input} isn't a valid input (enter an int)")
+                print(f"{new_height_input} isn't a valid input "
+                      "(enter a positive int)")
                 time.sleep(2)
                 continue
 
