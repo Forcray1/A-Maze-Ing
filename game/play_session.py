@@ -80,6 +80,7 @@ def _render_with_player(
     for visited_x, visited_y in set(player.path):
         if 0 <= visited_x < width and 0 <= visited_y < height:
             lines[2 * visited_y + 1][2 * visited_x + 1] = VISITED_TILE
+
     for (x1, y1), (x2, y2) in zip(player.path, player.path[1:]):
         if not (
             0 <= x1 < width
@@ -141,7 +142,7 @@ def play_maze(
                   "Press Enter to go back to menu.\033[0m")
             print("\033[96mStatistics:\033[0m\n")
             total_cells = width * height
-            exploration = (player.steps / total_cells) * 100
+            exploration = (len(set(player.path)) / total_cells) * 100
             path_lenght = len(solution_path)
             print(f"\033[93mYou explored {exploration:.2f}% of "
                   f"the maze\033[0m")
