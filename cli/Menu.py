@@ -3,7 +3,12 @@ import secrets
 from typing import Optional
 
 from mazegen.maze_maker import MazeGenerator
-from cli.display import print_maze, render_maze_ascii, show_maze_in_terminal
+from cli.display import (
+    print_maze,
+    print_maze_with_path,
+    render_maze_ascii,
+    show_maze_in_terminal,
+)
 from game.play_session import play_maze
 from game.player import Player
 
@@ -86,7 +91,12 @@ def interface(maze: dict,
     speed = 2
     color_changed = 0
     show_solution = False
+    solution_path = ""
     pause_animation_once = False
+    solver_maze = __import__(
+        "core.solver",
+        fromlist=["solver_maze"],
+    ).solver_maze
     while True:
         print("\033[2J\033[H", end="")
         progress_callback = None
@@ -111,8 +121,17 @@ def interface(maze: dict,
             progress_callback=progress_callback,
         )
         grid = generator.generate()
-        print_maze(maze, grid, colors)
-        print(f"SEED used: {seed}")
+        if show_solution:
+            try:
+                solution_path = solver_maze(maze, grid)
+                print_maze_with_path(maze, grid, colors, solution_path, seed)
+            except ValueError:
+                print_maze(maze, grid, colors)
+                print(f"SEED used: {seed}")
+                print("\nNo solution path found for this maze")
+        else:
+            print_maze(maze, grid, colors)
+            print(f"SEED used: {seed}")
 
         print("\n1. Change maze colors")
         if not show_solution:
@@ -169,9 +188,9 @@ def interface(maze: dict,
 
         elif choice == "2":
             if show_solution:
-                pass
+                show_solution = False
             else:
-                pass
+                show_solution = True
 
         elif choice == "3":
             print_maze(maze, grid, colors)

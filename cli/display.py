@@ -1,4 +1,3 @@
-from __future__ import annotations
 import sys
 from pathlib import Path
 from typing import Optional
@@ -6,6 +5,7 @@ from mazegen.maze_maker import BLOCK, E, N, S, W
 
 START_TILE = "\033[92m██\033[0m"
 END_TILE = "\033[91m██\033[0m"
+VISITED_TILE = "\033[94m██\033[0m"
 
 
 def render_maze_ascii(maze: dict,
@@ -54,6 +54,99 @@ def render_maze_ascii(maze: dict,
         exit_x = width - 1
     if exit_y == height:
         exit_y = height - 1
+    if 0 <= entry_x < width and 0 <= entry_y < height:
+        lines[2 * entry_y + 1][2 * entry_x + 1] = START_TILE
+    if 0 <= exit_x < width and 0 <= exit_y < height:
+        lines[2 * exit_y + 1][2 * exit_x + 1] = END_TILE
+
+    return "\n".join("".join(row) for row in lines)
+
+
+def _path_points_from_moves(
+    start: tuple[int, int],
+    moves: str,
+) -> list[tuple[int, int]]:
+    """
+    Build path coordinates from a start position and a movement string.
+    """
+    x, y = start
+    points = [start]
+
+    for move in moves:
+        if move == "N":
+            y -= 1
+        elif move == "S":
+            y += 1
+        elif move == "E":
+            x += 1
+        elif move == "W":
+            x -= 1
+        else:
+            raise ValueError(f"Unknown move: {move}")
+        points.append((x, y))
+
+    return points
+
+
+def render_maze_ascii_with_path(
+    maze: dict,
+    grid: list[list[int]],
+    colors: dict[str: str],
+    moves: str,
+) -> str:
+    """
+    Render maze with a highlighted solution path.
+    """
+    width = int(maze["WIDTH"])
+    height = int(maze["HEIGHT"])
+    wall_tile = colors["WALL_TILE"]
+    open_tile = colors["OPEN_TILE"]
+    block_tile = colors["BLOCK_TILE"]
+
+    lines = [
+        [wall_tile for _ in range(2 * width + 1)]
+        for _ in range(2 * height + 1)
+    ]
+
+    for y in range(height):
+        for x in range(width):
+            cell = grid[y][x]
+            rx = 2 * x + 1
+            ry = 2 * y + 1
+            if cell & BLOCK:
+                lines[ry][rx] = block_tile
+                continue
+            lines[ry][rx] = open_tile
+            if cell & N:
+                lines[ry - 1][rx] = open_tile
+            if cell & S:
+                lines[ry + 1][rx] = open_tile
+            if cell & E:
+                lines[ry][rx + 1] = open_tile
+            if cell & W:
+                lines[ry][rx - 1] = open_tile
+
+    entry_x, entry_y = _normalize_point(str(maze["ENTRY"]), width, height)
+
+    points = _path_points_from_moves((entry_x, entry_y), moves)
+
+    for point_x, point_y in set(points):
+        if 0 <= point_x < width and 0 <= point_y < height:
+            lines[2 * point_y + 1][2 * point_x + 1] = VISITED_TILE
+
+    for (x1, y1), (x2, y2) in zip(points, points[1:]):
+        if not (
+            0 <= x1 < width
+            and 0 <= y1 < height
+            and 0 <= x2 < width
+            and 0 <= y2 < height
+        ):
+            continue
+        wall_x = x1 + x2 + 1
+        wall_y = y1 + y2 + 1
+        lines[wall_y][wall_x] = VISITED_TILE
+
+    exit_x, exit_y = _normalize_point(str(maze["EXIT"]), width, height)
     if 0 <= entry_x < width and 0 <= entry_y < height:
         lines[2 * entry_y + 1][2 * entry_x + 1] = START_TILE
     if 0 <= exit_x < width and 0 <= exit_y < height:
@@ -148,5 +241,23 @@ def print_maze(
     """
     maze_ascii = render_maze_ascii(maze, grid, colors)
     show_maze_in_terminal(maze_ascii)
+    dump_text = maze_hex_dump(maze, grid)
+    write_hex_dump_file(maze, dump_text)
+
+
+def print_maze_with_path(
+    maze: dict,
+    grid: list[list[int]],
+    colors: dict[str: str],
+    moves: str,
+    seed: Optional[str] = None,
+) -> None:
+    """
+    Show final maze in terminal with highlighted solution path.
+    """
+    maze_ascii = render_maze_ascii_with_path(maze, grid, colors, moves)
+    show_maze_in_terminal(maze_ascii)
+    if seed is not None:
+        print(f"SEED used: {seed}")
     dump_text = maze_hex_dump(maze, grid)
     write_hex_dump_file(maze, dump_text)

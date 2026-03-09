@@ -1,0 +1,3 @@
+implementer solver dans game pour stat de fin
+essayer de faire crash le programme et corriger quand c'est le cas
+ajouter la solution path a l'output file
