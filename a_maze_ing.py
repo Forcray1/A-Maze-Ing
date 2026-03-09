@@ -1,5 +1,6 @@
 import secrets
 import sys
+import time
 
 from core.check_value import check_value
 from cli.Menu import interface
@@ -77,6 +78,8 @@ def main() -> None:
     if int(maze["WIDTH"]) > 7 and int(maze["HEIGHT"]) > 5:
         print_42 = True
     else:
+        print("The maze is too small, so there won't be a 42 logo")
+        time.sleep(3)
         print_42 = False
 
     if "SEED" in maze:
