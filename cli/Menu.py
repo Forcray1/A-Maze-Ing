@@ -88,7 +88,7 @@ def interface(maze: dict,
     """
     Handle the interactive user pannel, and all of the display
     """
-    speed = 2
+    speed: float = 2
     color_changed = 0
     show_solution = False
     solution_path = ""

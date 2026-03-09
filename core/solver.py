@@ -1,7 +1,13 @@
+from typing import Optional, Union
+
 from mazegen.maze_maker import BLOCK, E, N, S, W
 
 
-def normalize_point(point, width, height):
+def normalize_point(
+    point: Union[str, tuple[int, int]],
+    width: int,
+    height: int,
+) -> tuple[int, int]:
     """
     Convert an ENTRY/EXIT value to valid maze coordinates.
     """
@@ -26,29 +32,31 @@ def normalize_point(point, width, height):
     return x, y
 
 
-def get_start_exit(maze):
+def get_start_exit(
+    maze: dict,
+) -> tuple[tuple[int, int], tuple[int, int]]:
     """
     Extract and normalize start/end coordinates from the maze config.
     """
     width = int(maze["WIDTH"])
     height = int(maze["HEIGHT"])
     start = normalize_point(str(maze["ENTRY"]), width, height)
-    exit = normalize_point(str(maze["EXIT"]), width, height)
-    return start, exit
+    exit_point = normalize_point(str(maze["EXIT"]), width, height)
+    return start, exit_point
 
 
 def iter_open_neighbors(
-    grid,
-    x,
-    y,
-    width,
-    height,
-):
+    grid: list[list[int]],
+    x: int,
+    y: int,
+    width: int,
+    height: int,
+) -> list[tuple[int, int]]:
     """
     Yield reachable adjacent cells from one maze cell.
     """
     cell = grid[y][x]
-    neighbors = []
+    neighbors: list[tuple[int, int]] = []
 
     directions = (
         (N, 0, -1),
@@ -68,18 +76,18 @@ def iter_open_neighbors(
 
 
 def reconstruct_path(
-    parents,
-    start,
-    exit,
-):
+    parents: dict[tuple[int, int], Optional[tuple[int, int]]],
+    start: tuple[int, int],
+    exit_point: tuple[int, int],
+) -> list[tuple[int, int]]:
     """
     Rebuild the shortest path from BFS (Breadth-First Search) parent links.
     """
-    if exit not in parents:
+    if exit_point not in parents:
         raise ValueError("no path from start to exit")
 
-    path = []
-    current = exit
+    path: list[tuple[int, int]] = []
+    current: Optional[tuple[int, int]] = exit_point
     while current is not None:
         path.append(current)
         current = parents[current]
@@ -91,9 +99,9 @@ def reconstruct_path(
 
 
 def solver_maze(
-    maze,
-    grid,
-):
+    maze: dict,
+    grid: list[list[int]],
+) -> str:
     """
     Compute a shortest valid path from ENTRY to EXIT using BFS
      (Breadth-First Search).
@@ -105,25 +113,24 @@ def solver_maze(
     if width == 0:
         raise ValueError("grid is empty")
 
-    start, exit = get_start_exit(maze)
+    start, exit_point = get_start_exit(maze)
     sx, sy = start
-    ex, ey = exit
+    ex, ey = exit_point
 
     if grid[sy][sx] & BLOCK:
         raise ValueError("ENTRY is blocked")
     if grid[ey][ex] & BLOCK:
         raise ValueError("EXIT is blocked")
 
-    path = [start]
+    bfs_queue: list[tuple[int, int]] = [start]
     head = 0
-    parents = {}
-    parents[start] = None
+    parents: dict[tuple[int, int], Optional[tuple[int, int]]] = {start: None}
 
-    while head < len(path):
-        current = path[head]
+    while head < len(bfs_queue):
+        current = bfs_queue[head]
         head += 1
-        if current == exit:
-            result = reconstruct_path(parents, start, exit)
+        if current == exit_point:
+            result = reconstruct_path(parents, start, exit_point)
             return path_to_moves(result)
 
         x, y = current
@@ -131,12 +138,12 @@ def solver_maze(
             if neighbor in parents:
                 continue
             parents[neighbor] = current
-            path.append(neighbor)
+            bfs_queue.append(neighbor)
 
     raise ValueError("no path exists between ENTRY and EXIT")
 
 
-def path_to_moves(path: list[str]) -> str:
+def path_to_moves(path: list[tuple[int, int]]) -> str:
     """
     Convert a coordinate path into movement letters (NSEW).
     """
@@ -145,8 +152,8 @@ def path_to_moves(path: list[str]) -> str:
 
     moves = []
     for (x1, y1), (x2, y2) in zip(path, path[1:]):
-        dx = int(x2) - int(x1)
-        dy = int(y2) - int(y1)
+        dx = x2 - x1
+        dy = y2 - y1
         if dx == 0 and dy == -1:
             moves.append("N")
         elif dx == 0 and dy == 1:

@@ -252,7 +252,7 @@ def print_maze(
     write_hex_dump_file(maze, dump_text, grid)
 
 
-def write_path_output(maze: dict, path: str):
+def write_path_output(maze: dict, path: str) -> None:
     output_path = Path(str(maze["OUTPUT_FILE"]))
     if not output_path.is_absolute():
         output_path = Path(__file__).resolve().parent / output_path

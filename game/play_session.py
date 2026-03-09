@@ -1,9 +1,11 @@
 import time
 import sys
+from typing import Optional, Type
 
 from cli.display import show_maze_in_terminal
 from mazegen.maze_maker import BLOCK, E, N, S, W
 from core.solver import solver_maze
+from game.player import Player
 
 
 PLAYER_TILE = "^^"
@@ -40,7 +42,7 @@ def _render_with_player(
     maze: dict,
     grid: list[list[int]],
     colors: dict[str, str],
-    player,
+    player: Player,
 ) -> str:
     """
     Render the maze ,draw the player on top of it, and mark the visited cells.
@@ -109,8 +111,8 @@ def play_maze(
     maze: dict,
     grid: list[list[int]],
     colors: dict[str, str],
-    player_class,
-    seed: int | None = None,
+    player_class: Type[Player],
+    seed: Optional[int] = None,
 ) -> None:
     """
     Start a game session.

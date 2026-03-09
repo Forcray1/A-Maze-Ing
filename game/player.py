@@ -14,16 +14,23 @@ class Player:
     Represent the player position and movement rules.
     """
 
-    def __init__(self, grid, width, height, start, exit_point):
+    def __init__(
+        self,
+        grid: list[list[int]],
+        width: int,
+        height: int,
+        start: tuple[int, int],
+        exit_point: tuple[int, int],
+    ) -> None:
         self.grid = grid
         self.width = width
         self.height = height
         self.x, self.y = start
         self.exit_x, self.exit_y = exit_point
 
-        self.steps = 0
-        self.path = [start]
-        self.won = False
+        self.steps: int = 0
+        self.path: list[tuple[int, int]] = [start]
+        self.won: bool = False
 
     def can_move(self, direction: str) -> bool:
         """
