@@ -138,8 +138,8 @@ def interface(maze: dict,
         else:
             print_maze(maze, grid, colors)
             print(f"SEED used: {seed}")
-
-        print("\n1. Change maze colors")
+        print("\n=== A-Maze-ing ===")
+        print("1. Change maze colors")
         if not show_solution:
             print("2. Show maze solution path")
         else:
