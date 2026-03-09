@@ -33,4 +33,4 @@ lint:
 	mypy --warn-return-any --warn-unused-ignores --ignore-missing-imports \
 		 --disallow-untyped-defs --check-untyped-defs .
 
-.PHONY: all install run debug clean lint lint-strict
+.PHONY: all install run debug clean lint
