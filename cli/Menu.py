@@ -21,7 +21,7 @@ class XborderError():
     pass
 
 
-def edit_color(colors: dict[str: str],
+def edit_color(colors: dict[str, str],
                to_change: str,
                maze: dict,
                grid: list[list[int]],
@@ -80,7 +80,7 @@ def edit_color(colors: dict[str: str],
 
 def interface(maze: dict,
               show_progress: bool,
-              colors: dict[str: str],
+              colors: dict[str, str],
               perfect: bool,
               print_42: bool,
               seed: Optional[int] = None,
@@ -124,7 +124,13 @@ def interface(maze: dict,
         if show_solution:
             try:
                 solution_path = solver_maze(maze, grid)
-                print_maze_with_path(maze, grid, colors, solution_path, seed)
+                print_maze_with_path(
+                    maze,
+                    grid,
+                    colors,
+                    solution_path,
+                    str(seed) if seed is not None else None
+                )
             except ValueError:
                 print_maze(maze, grid, colors)
                 print(f"SEED used: {seed}")
@@ -199,7 +205,12 @@ def interface(maze: dict,
             color_changed = 0
             seed_input = input("\nchoose a seed (leave empty if none): ")
             if seed_input != "":
-                seed = seed_input
+                try:
+                    seed = int(seed_input)
+                except ValueError:
+                    print(f"{seed_input} isn't a valid seed")
+                    time.sleep(2)
+                    continue
             else:
                 seed = secrets.randbits(64)
 

@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 from mazegen.maze_maker import BLOCK, E, N, S, W
+from core.solver import solver_maze
 
 START_TILE = "\033[92m██\033[0m"
 END_TILE = "\033[91m██\033[0m"
@@ -10,7 +11,7 @@ VISITED_TILE = "\033[94m██\033[0m"
 
 def render_maze_ascii(maze: dict,
                       grid: list[list[int]],
-                      colors: dict[str: str]
+                      colors: dict[str, str]
                       ) -> str:
     """
     Create the maze rendered in ascii
@@ -91,7 +92,7 @@ def _path_points_from_moves(
 def render_maze_ascii_with_path(
     maze: dict,
     grid: list[list[int]],
-    colors: dict[str: str],
+    colors: dict[str, str],
     moves: str,
 ) -> str:
     """
@@ -190,6 +191,7 @@ def maze_hex_dump(maze: dict, grid: list[list[int]]) -> str:
     """
     width = int(maze["WIDTH"])
     height = int(maze["HEIGHT"])
+    solve_path = solver_maze(maze, grid)
 
     hex_rows: list[str] = []
     for y in range(height):
@@ -216,10 +218,14 @@ def maze_hex_dump(maze: dict, grid: list[list[int]]) -> str:
         + "\n\n"
         + f"{entry_x + 1},{entry_y + 1}\n"
         + f"{exit_x + 1},{exit_y + 1}\n"
+        + f"{solve_path}\n"
     )
 
 
-def write_hex_dump_file(maze: dict, dump_text: str) -> None:
+def write_hex_dump_file(maze: dict,
+                        dump_text: str,
+                        grid: list[list[int]]
+                        ) -> None:
     """
     Write the hexadecimal maze export to output file.
     """
@@ -228,12 +234,13 @@ def write_hex_dump_file(maze: dict, dump_text: str) -> None:
         output_path = Path(__file__).resolve().parent / output_path
     with open(output_path, "w", encoding="utf-8") as out:
         out.write(dump_text)
+        write_path_output(maze, solver_maze(maze, grid))
 
 
 def print_maze(
     maze: dict,
     grid: list[list[int]],
-    colors: dict[str: str],
+    colors: dict[str, str],
     seed: Optional[str] = None,
 ) -> None:
     """
@@ -242,13 +249,21 @@ def print_maze(
     maze_ascii = render_maze_ascii(maze, grid, colors)
     show_maze_in_terminal(maze_ascii)
     dump_text = maze_hex_dump(maze, grid)
-    write_hex_dump_file(maze, dump_text)
+    write_hex_dump_file(maze, dump_text, grid)
+
+
+def write_path_output(maze: dict, path: str):
+    output_path = Path(str(maze["OUTPUT_FILE"]))
+    if not output_path.is_absolute():
+        output_path = Path(__file__).resolve().parent / output_path
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(path)
 
 
 def print_maze_with_path(
     maze: dict,
     grid: list[list[int]],
-    colors: dict[str: str],
+    colors: dict[str, str],
     moves: str,
     seed: Optional[str] = None,
 ) -> None:
@@ -260,4 +275,4 @@ def print_maze_with_path(
     if seed is not None:
         print(f"SEED used: {seed}")
     dump_text = maze_hex_dump(maze, grid)
-    write_hex_dump_file(maze, dump_text)
+    write_hex_dump_file(maze, dump_text, grid)

@@ -3,6 +3,7 @@ import sys
 
 from cli.display import show_maze_in_terminal
 from mazegen.maze_maker import BLOCK, E, N, S, W
+from core.solver import solver_maze
 
 
 PLAYER_TILE = "^^"
@@ -18,8 +19,8 @@ def check_full_path(key: str, path: str) -> bool:
         "E": "\x1b[C",
         "W": "\x1b[D"
     }
-    expected_keys = "".join(conversion[step] for step in path if step in
-                            conversion)
+    expected_keys = "".join(conversion[step.upper()] for step in path if step
+                            in conversion)
     return key == expected_keys
 
 
@@ -125,7 +126,7 @@ def play_maze(
     player = player_class(grid, width, height, start, exit_point)
 
     perfect_path = False
-    solution_path = "NNNNNNNNNN"
+    solution_path = solver_maze(maze, grid)
     while True:
         frame = _render_with_player(maze, grid, colors, player)
         info = (

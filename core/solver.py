@@ -116,7 +116,8 @@ def solver_maze(
 
     path = [start]
     head = 0
-    parents = {start: None}
+    parents = {}
+    parents[start] = None
 
     while head < len(path):
         current = path[head]
@@ -135,7 +136,7 @@ def solver_maze(
     raise ValueError("no path exists between ENTRY and EXIT")
 
 
-def path_to_moves(path: list[str]):
+def path_to_moves(path: list[str]) -> str:
     """
     Convert a coordinate path into movement letters (NSEW).
     """
@@ -144,8 +145,8 @@ def path_to_moves(path: list[str]):
 
     moves = []
     for (x1, y1), (x2, y2) in zip(path, path[1:]):
-        dx = x2 - x1
-        dy = y2 - y1
+        dx = int(x2) - int(x1)
+        dy = int(y2) - int(y1)
         if dx == 0 and dy == -1:
             moves.append("N")
         elif dx == 0 and dy == 1:
