@@ -33,7 +33,11 @@ def main() -> None:
                 if line.startswith("#"):
                     pass
                 else:
-                    key, str_value = line.split("=")
+                    try:
+                        key, str_value = line.split("=")
+                    except ValueError:
+                        raise ValueError(line)
+                    key = key.upper()
                     if key not in keys:
                         print(f"{key} is not recognised")
                     if key in seen_keys:
@@ -49,6 +53,10 @@ def main() -> None:
     except FileNotFoundError:
         print(f"no {config_file_path} file found")
         return
+    except ValueError as e:
+        print(f"{e} is not in the right format (KEY=VALUE)")
+        return
+
     x_start, y_start = map(int, str(maze["ENTRY"]).split(","))
     start = {"x": x_start, "y": y_start}
     x_end, y_end = map(int, str(maze["EXIT"]).split(","))
