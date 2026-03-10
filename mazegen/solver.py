@@ -1,6 +1,6 @@
 from typing import Optional, Union
 
-from mazegen.maze_maker import BLOCK, E, N, S, W
+from .maze_maker import BLOCK, E, N, S, W
 
 
 def normalize_point(
@@ -20,11 +20,6 @@ def normalize_point(
         x, y = map(int, point.replace(" ", "").split(","))
     else:
         x, y = point
-
-    if x == width:
-        x = width - 1
-    if y == height:
-        y = height - 1
 
     if x < 0 or y < 0 or x >= width or y >= height:
         raise ValueError("point is outside maze bounds")

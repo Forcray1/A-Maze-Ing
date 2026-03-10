@@ -94,7 +94,7 @@ def interface(maze: dict,
     solution_path = ""
     pause_animation_once = False
     solver_maze = __import__(
-        "core.solver",
+        "mazegen.solver",
         fromlist=["solver_maze"],
     ).solver_maze
     while True:
@@ -313,12 +313,12 @@ def interface(maze: dict,
                         print("Coordinates must be positive")
                         time.sleep(2)
                         continue
-                    if x_start > new_width or x_end > new_width:
+                    if x_start >= new_width or x_end >= new_width:
                         print(f"X coordinates must be inside the new "
                               f"width ({new_width})")
                         time.sleep(2)
                         continue
-                    if y_start > new_height or y_end > new_height:
+                    if y_start >= new_height or y_end >= new_height:
                         print(f"Y coordinates must be inside the new "
                               f"height ({new_height})")
                         time.sleep(2)
@@ -335,12 +335,12 @@ def interface(maze: dict,
                 print("ERROR of configuration: The Y cords must be positive")
                 time.sleep(2)
                 continue
-            if x_start > new_width or x_end > new_width:
+            if x_start >= new_width or x_end >= new_width:
                 print("ERROR of configuration: The X cords must be inside"
                       " the maze")
                 time.sleep(2)
                 continue
-            if y_start > new_height or y_end > new_height:
+            if y_start >= new_height or y_end >= new_height:
                 print("ERROR of configuration: The Y cords must be inside"
                       " the maze")
                 time.sleep(2)

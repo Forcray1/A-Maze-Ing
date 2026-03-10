@@ -39,13 +39,11 @@ def check_value(config: dict) -> bool:
               " at least: WIDTH, HEIGHT, ENTRY, EXIT, OUTPUT_FILE, PERFECT")
         return False
     try:
-        if int(config["WIDTH"]):
-            pass
-        else:
+        width = int(config["WIDTH"])
+        if width <= 0:
             raise ValueError("WIDTH")
-        if int(config["HEIGHT"]):
-            pass
-        else:
+        height = int(config["HEIGHT"])
+        if height <= 0:
             raise ValueError("HEIGHT")
         entry = str(config["ENTRY"]).replace(" ", "").split(",")
         if (
@@ -54,6 +52,8 @@ def check_value(config: dict) -> bool:
             or not entry[1].isdigit()
         ):
             raise ValueError("ENTRY")
+        entry_x = int(entry[0])
+        entry_y = int(entry[1])
         exit_cord = str(config["EXIT"]).replace(" ", "").split(",")
         if (
             len(exit_cord) != 2
@@ -61,6 +61,14 @@ def check_value(config: dict) -> bool:
             or not exit_cord[1].isdigit()
         ):
             raise ValueError("EXIT")
+        exit_x = int(exit_cord[0])
+        exit_y = int(exit_cord[1])
+        if entry_x >= width or entry_y >= height:
+            raise ValueError("ENTRY")
+        if exit_x >= width or exit_y >= height:
+            raise ValueError("EXIT")
+        if (entry_x, entry_y) == (exit_x, exit_y):
+            raise ValueError("ENTRY/EXIT")
         if str(config["OUTPUT_FILE"]):
             pass
         else:

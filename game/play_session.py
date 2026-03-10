@@ -4,7 +4,7 @@ from typing import Optional, Type
 
 from cli.display import show_maze_in_terminal
 from mazegen.maze_maker import BLOCK, E, N, S, W
-from core.solver import solver_maze
+from mazegen.solver import solver_maze
 from game.player import Player
 
 
@@ -31,10 +31,8 @@ def _normalize_point(point: str, width: int, height: int) -> tuple[int, int]:
     Convert a point string to coordinates inside maze bounds.
     """
     x, y = map(int, point.replace(" ", "").split(","))
-    if x == width:
-        x = width - 1
-    if y == height:
-        y = height - 1
+    if x < 0 or y < 0 or x >= width or y >= height:
+        raise ValueError("point is outside maze bounds")
     return x, y
 
 

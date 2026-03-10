@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by \<mlorenzo\>,<elsahin\> .*
+*This project has been created as part of the 42 curriculum by <mlorenzo>, <elsahin>.*
 
 # A-Maze-Ing
 
@@ -29,7 +29,7 @@ The project is structured in several independent modules:
 
 ```bash
 make build
-# Produces mazegen-1.0.0-py3-none-any.whl and mazegen-1.0.0.tar.gz at the root
+# Produces mazegen-1.0.0.tar.gz at the root
 ```
 
 ---
@@ -42,8 +42,8 @@ The program takes a plain text configuration file as its only argument. Each lin
 |---|---|---|---|---|
 | `WIDTH` | `int` | ✅ | Width of the maze (number of columns) | `WIDTH=20` |
 | `HEIGHT` | `int` | ✅ | Height of the maze (number of rows) | `HEIGHT=15` |
-| `ENTRY` | `x,y` | ✅ | Entry coordinates (0-indexed). `x` = WIDTH or `y` = HEIGHT is clamped to the last cell. | `ENTRY=0,0` |
-| `EXIT` | `x,y` | ✅ | Exit coordinates. Same rules as ENTRY. | `EXIT=19,14` |
+| `ENTRY` | `x,y` | ✅ | Entry coordinates (0-indexed), inside maze bounds (`0 <= x < WIDTH`, `0 <= y < HEIGHT`). | `ENTRY=0,0` |
+| `EXIT` | `x,y` | ✅ | Exit coordinates, inside maze bounds with the same rule as ENTRY. | `EXIT=19,14` |
 | `OUTPUT_FILE` | `string` | ✅ | Path to the output `.txt` file for the hex dump. | `OUTPUT_FILE=maze.txt` |
 | `PERFECT` | `True`/`False` | ✅ | If `True`, generates a perfect maze (unique path). If `False`, extra openings are added. | `PERFECT=True` |
 | `SHOW_PROGRESS` | `True`/`False` | ❌ | Animates maze generation step by step. Defaults to `False`. | `SHOW_PROGRESS=False` |
@@ -55,7 +55,7 @@ Example `config.txt`:
 WIDTH=20
 HEIGHT=20
 ENTRY=0,0
-EXIT=20,20
+EXIT=19,19
 OUTPUT_FILE=maze.txt
 PERFECT=True
 SHOW_PROGRESS=False
@@ -85,17 +85,48 @@ The maze is generated using **iterative Depth-First Search (DFS)**, implemented 
 
 ## Reusable Module — mazegen
 
-The `mazegen` package (`mazegen/maze_maker.py`) is fully standalone and has no external dependencies. It can be imported and used in any Python 3.8+ project independently of this file.
+The `mazegen` package (`mazegen/maze_maker.py` and `mazegen/solver.py`) is fully standalone and has no external dependencies. It can be imported and used in any Python 3.10+ project independently of this file.
 
 ### What is reusable
 
 - `MazeGenerator` class — generates any rectangular maze with configurable size, entry/exit, seed, and mode (perfect or imperfect).
+- `solver_maze` function — computes a shortest valid path from entry to exit using BFS.
 - The bitmask grid format is self-contained and straightforward to consume in any renderer or solver.
 
 ### Install from the pre-built package
 
 ```bash
-pip install mazegen-1.0.0-py3-none-any.whl
+pip install mazegen-1.0.0.tar.gz
+```
+
+### Unpack and reuse the `.tar.gz`
+
+If you want to inspect or reuse the source package manually:
+
+```bash
+# 1) List archive content
+tar -tf mazegen-1.0.0.tar.gz
+
+# 2) Extract it
+tar -xzf mazegen-1.0.0.tar.gz
+
+# 3) Enter extracted folder
+cd mazegen-1.0.0
+```
+
+Then you have two common options:
+
+```bash
+# Option A: install from extracted sources
+python3 -m venv .venv
+source .venv/bin/activate
+pip install .
+```
+
+```bash
+# Option B: import directly from sources (without installation)
+export PYTHONPATH="$PWD"
+python3 -c "from mazegen.maze_maker import MazeGenerator; print('ok')"
 ```
 
 ### Build from scratch (evaluation)
@@ -178,11 +209,11 @@ if cell & E:
 
 ### Accessing a solution
 
-Pass the generated grid to `solver_maze()` from `core/solver.py` (BFS). It returns the shortest path as a move string (`N`, `S`, `E`, `W`):
+Pass the generated grid to `solver_maze()` from `mazegen.solver` (BFS). It returns the shortest path as a move string (`N`, `S`, `E`, `W`):
 
 ```python
 from mazegen.maze_maker import MazeGenerator
-from core.solver import solver_maze
+from mazegen.solver import solver_maze
 
 gen = MazeGenerator(width=10, height=10, entry=(0, 0), exit_point=(9, 9), seed=42)
 grid = gen.generate()

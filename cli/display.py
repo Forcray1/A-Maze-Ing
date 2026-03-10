@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 from mazegen.maze_maker import BLOCK, E, N, S, W
-from core.solver import solver_maze
+from mazegen.solver import solver_maze
 
 START_TILE = "\033[92m██\033[0m"
 END_TILE = "\033[91m██\033[0m"
@@ -45,16 +45,8 @@ def render_maze_ascii(maze: dict,
             if cell & W:
                 lines[ry][rx - 1] = OPEN_TILE
 
-    entry_x, entry_y = map(int, maze["ENTRY"].replace(" ", "").split(","))
-    exit_x, exit_y = map(int, maze["EXIT"].replace(" ", "").split(","))
-    if entry_x == width:
-        entry_x = width - 1
-    if entry_y == height:
-        entry_y = height - 1
-    if exit_x == width:
-        exit_x = width - 1
-    if exit_y == height:
-        exit_y = height - 1
+    entry_x, entry_y = _normalize_point(str(maze["ENTRY"]), width, height)
+    exit_x, exit_y = _normalize_point(str(maze["EXIT"]), width, height)
     if 0 <= entry_x < width and 0 <= entry_y < height:
         lines[2 * entry_y + 1][2 * entry_x + 1] = START_TILE
     if 0 <= exit_x < width and 0 <= exit_y < height:
@@ -172,10 +164,8 @@ def _normalize_point(point: str, width: int, height: int) -> tuple[int, int]:
     Convert point string to valid zero-based coordinates inside maze bounds.
     """
     x, y = map(int, point.replace(" ", "").split(","))
-    if x == width:
-        x = width - 1
-    if y == height:
-        y = height - 1
+    if x < 0 or y < 0 or x >= width or y >= height:
+        raise ValueError("point is outside maze bounds")
     return x, y
 
 
@@ -217,7 +207,7 @@ def maze_hex_dump(maze: dict, grid: list[list[int]]) -> str:
         "\n".join(hex_rows)
         + "\n\n"
         + f"{entry_x},{entry_y}\n"
-        + f"{exit_x + 1},{exit_y + 1}\n"
+        + f"{exit_x},{exit_y}\n"
         + f"{solve_path}\n"
     )
 
@@ -230,8 +220,6 @@ def write_hex_dump_file(maze: dict,
     Write the hexadecimal maze export to output file.
     """
     output_path = Path(str(maze["OUTPUT_FILE"]))
-    if not output_path.is_absolute():
-        output_path = Path(__file__).resolve().parent / output_path
     with open(output_path, "w", encoding="utf-8") as out:
         out.write(dump_text)
 
@@ -253,8 +241,6 @@ def print_maze(
 
 def write_path_output(maze: dict, path: str) -> None:
     output_path = Path(str(maze["OUTPUT_FILE"]))
-    if not output_path.is_absolute():
-        output_path = Path(__file__).resolve().parent / output_path
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(path)
 

@@ -93,10 +93,8 @@ class MazeGenerator:
 
     def _normalize_point(self, point: tuple[int, int]) -> tuple[int, int]:
         x, y = point
-        if x == self.width:
-            x = self.width - 1
-        if y == self.height:
-            y = self.height - 1
+        if x < 0 or y < 0 or x >= self.width or y >= self.height:
+            raise ValueError("point is outside maze bounds")
         return x, y
 
     def generate(self) -> list[list[int]]:
@@ -111,9 +109,6 @@ class MazeGenerator:
 
         start_x, start_y = self._normalize_point(self.entry)
         end_x, end_y = self._normalize_point(self.exit_point)
-
-        if not _is_inside(start_x, start_y, self.width, self.height):
-            start_x, start_y = 0, 0
 
         blocked_cells: set[tuple[int, int]] = set()
         if self.print_42 and self.width >= 7 and self.height >= 5:

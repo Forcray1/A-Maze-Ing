@@ -19,12 +19,14 @@ debug:
 	$(PYTHON) -m pdb $(NAME) config.txt
 
 build:
-	@echo "$(GREEN)Construction du package mazegen...$(RESET)"
-	$(PIP) install --quiet build
-	$(PYTHON) -m build
-	mv dist/*.whl dist/*.tar.gz .
+	@echo "$(GREEN)Construction de l'archive source mazegen...$(RESET)"
+	@tmpdir=$$(mktemp -d); \
+	trap 'rm -rf "$$tmpdir"' EXIT; \
+	$(PYTHON) -m pip install --target "$$tmpdir" build >/dev/null; \
+	PYTHONPATH="$$tmpdir" $(PYTHON) -m build --sdist
+	mv dist/*.tar.gz .
 	rm -rf dist build mazegen.egg-info
-	@echo "$(GREEN)Package disponible à la racine.$(RESET)"
+	@echo "$(GREEN)Archive source disponible à la racine.$(RESET)"
 
 clean:
 	@echo "$(GREEN)Nettoyage complet...$(RESET)"

@@ -66,9 +66,15 @@ def main() -> None:
             raise ValueError("The X cords must be positive")
         if start["y"] < 0 or end["y"] < 0:
             raise ValueError("The Y cords must be positive")
-        if start["x"] > int(maze["WIDTH"]) or end["x"] > int(maze["WIDTH"]):
+        if (
+            start["x"] >= int(maze["WIDTH"])
+            or end["x"] >= int(maze["WIDTH"])
+        ):
             raise ValueError("The X cords must be inside the maze")
-        if start["y"] > int(maze["HEIGHT"]) or end["y"] > int(maze["HEIGHT"]):
+        if (
+            start["y"] >= int(maze["HEIGHT"])
+            or end["y"] >= int(maze["HEIGHT"])
+        ):
             raise ValueError("The Y cords must be inside the maze")
         if maze["ENTRY"] == maze["EXIT"]:
             raise ValueError("ENTRY and EXIT can't be at the same place")

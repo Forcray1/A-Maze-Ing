@@ -7,7 +7,7 @@ name = "mazegen"
 version = "1.0.0"
 description = "Standalone maze generator usable as a reusable Python module."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 
 [tool.setuptools.packages.find]
