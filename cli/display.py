@@ -216,7 +216,7 @@ def maze_hex_dump(maze: dict, grid: list[list[int]]) -> str:
     return (
         "\n".join(hex_rows)
         + "\n\n"
-        + f"{entry_x + 1},{entry_y + 1}\n"
+        + f"{entry_x},{entry_y}\n"
         + f"{exit_x + 1},{exit_y + 1}\n"
         + f"{solve_path}\n"
     )
@@ -234,7 +234,6 @@ def write_hex_dump_file(maze: dict,
         output_path = Path(__file__).resolve().parent / output_path
     with open(output_path, "w", encoding="utf-8") as out:
         out.write(dump_text)
-        write_path_output(maze, solver_maze(maze, grid))
 
 
 def print_maze(
