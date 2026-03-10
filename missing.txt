@@ -1,1 +1,0 @@
-essayer de faire crash le programme et corriger quand c'est le cas

@@ -4,7 +4,7 @@
 
 ## Description
 
-A-Maze-Ing is a terminal maze game written in Python. The program reads a configuration file, procedurally generates a maze using a **Depth-First Search (DFS)** algorithm, displays it in the terminal, and lets the player navigate it interactively. An automatic solver based on **BFS (Breadth-First Search)** is also available to compute and display the shortest path from entry to exit.
+A-Maze-Ing is a terminal maze generator written in Python. The program reads a configuration file, procedurally generates a maze using a **Depth-First Search (DFS)** algorithm, displays it in the terminal, and lets the player navigate it interactively. An automatic solver based on **BFS (Breadth-First Search)** is also available to compute and display the shortest path from entry to exit.
 
 The project is structured in several independent modules:
 
@@ -17,40 +17,19 @@ The project is structured in several independent modules:
 
 ## Instructions
 
+- You can use the command 'make run', wich will start with the asked command : python3 a_maze_ing config.txt
+- Or if you want to enter a different config file, or test the arguments error gestion, directly enter it in the terminal with this format : python3 a_maze_ing [config file]
+
 ### Requirements
 
 - Python 3.10+
 - No external dependencies (standard library only)
-
-### Run the game
-
-```bash
-python3 a_maze_ing.py config.txt
-```
-
-### Install development tools (linter, type checker, tests)
-
-```bash
-make install
-```
-
-### Lint and type-check
-
-```bash
-make lint
-```
 
 ### Build the reusable `mazegen` package
 
 ```bash
 make build
 # Produces mazegen-1.0.0-py3-none-any.whl and mazegen-1.0.0.tar.gz at the root
-```
-
-### Clean build artifacts
-
-```bash
-make clean
 ```
 
 ---
@@ -73,10 +52,10 @@ The program takes a plain text configuration file as its only argument. Each lin
 Example `config.txt`:
 
 ```
-WIDTH=5
-HEIGHT=5
+WIDTH=20
+HEIGHT=20
 ENTRY=0,0
-EXIT=5,5
+EXIT=20,20
 OUTPUT_FILE=maze.txt
 PERFECT=True
 SHOW_PROGRESS=False
@@ -86,7 +65,7 @@ SHOW_PROGRESS=False
 
 ## Maze Generation Algorithm
 
-The maze is generated using **iterative Depth-First Search (DFS)**, also known as the *recursive backtracker* algorithm, implemented without recursion via an explicit stack.
+The maze is generated using **iterative Depth-First Search (DFS)**, implemented without recursion via an explicit stack.
 
 ### How it works
 
@@ -106,7 +85,7 @@ The maze is generated using **iterative Depth-First Search (DFS)**, also known a
 
 ## Reusable Module — mazegen
 
-The `mazegen` package (`mazegen/maze_maker.py`) is fully standalone and has no external dependencies. It can be imported and used in any Python 3.8+ project independently of this game.
+The `mazegen` package (`mazegen/maze_maker.py`) is fully standalone and has no external dependencies. It can be imported and used in any Python 3.8+ project independently of this file.
 
 ### What is reusable
 
@@ -215,19 +194,17 @@ print("Solution:", moves)   # e.g. "SSEENN..."
 
 ---
 
-## Team & Project Management
-
-| Member | Login | Role |
-|---|---|---|
-| \<Name\> | \<mlorenzo\> | \<elsahin\> |
-
 ### Planning
 
-\<Describe your initial planning and how it evolved during the project.\>
+We planned to separate the work between us by letting mlorenzo doing the brut algorithms for the maze generator and solver, while elsahin did all the interactive interface. Once that done we put our work together, explained each other the logic and reflexion used, and the both of us worked on the bonus together.
 
 ### What worked well / what could be improved
 
-\<Describe what went well and what you would do differently.\>
+Everything went well, the work has been separated equally, and we did our parts efficiently, and within the deadlines that we setted up. The sharing of our work could have been improved, as it took some time to undesrtand the code of the other one, and adapt it to something the both of us were happy with.
+
+### Bonus
+
+As bonus, we added an animation while the maze is creating itself, wich speed can be adapted, We added the possibility to change the color of the 42 logo as well as the walls. And finally we also added a game, wich make the actual maze playable, with some stats about the score you did on this maze, as well as some easter eggs.
 
 ### Tools used
 
@@ -236,7 +213,7 @@ print("Solution:", moves)   # e.g. "SSEENN..."
 - `mypy` for static type checking
 - `pytest` for unit tests
 - `build` / `setuptools` for packaging
-- \<Any other tools, e.g. git, VSCode, etc.\>
+- `git` to share our progress and final project
 
 ---
 
@@ -247,11 +224,8 @@ print("Solution:", moves)   # e.g. "SSEENN..."
 - [Breadth-First Search — Wikipedia](https://en.wikipedia.org/wiki/Breadth-first_search)
 - [Python `random` module documentation](https://docs.python.org/3/library/random.html)
 - [Python Packaging User Guide](https://packaging.python.org/en/latest/)
-- [PEP 257 — Docstring conventions](https://peps.python.org/pep-0257/)
 - [mypy documentation](https://mypy.readthedocs.io/)
 
 ### AI usage
 
-AI (GitHub Copilot) was used for:
-
-- \<Describe the tasks, e.g. "writing docstrings", "fixing type annotations", "debugging the BFS solver"\>
+AI was strictely used as a learning tool, to do repetitive task, such as type hints, and to clarify the subject
