@@ -34,9 +34,9 @@ clean:
 	rm -rf .mypy_cache
 	rm -rf .pytest_cache
 	rm -rf build dist *.egg-info mazegen.egg-info
-	find . -name "mazegen-*.whl" -delete
-	find . -name "mazegen-*.tar.gz" -delete
-	find . -type f -name "*.pyc" -deletelint:
+	find . -type f -name "*.pyc" -delete
+
+lint:
 	@echo "$(GREEN)Vérification flake8...$(RESET)"
 	flake8 .
 	@echo "$(GREEN)Vérification mypy...$(RESET)"
